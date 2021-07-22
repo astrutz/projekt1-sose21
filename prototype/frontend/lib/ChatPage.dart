@@ -1,10 +1,13 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:socket_io_client/socket_io_client.dart';
 
 class ChatPage extends StatefulWidget {
+  ChatPage(String name);
+
   @override
   _ChatPageState createState() => _ChatPageState();
 }
@@ -13,6 +16,8 @@ class _ChatPageState extends State<ChatPage> {
   IO.Socket socket;
   List<String> messages;
   List<String> senders;
+  List<int> timestamps;
+  String name = 'Anonymer User #' + new Random().nextInt(10000).toString();
   double height, width;
   TextEditingController textController;
   ScrollController scrollController;
@@ -21,6 +26,7 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     messages = List<String>();
     senders = List<String>();
+    timestamps = List<int>();
     textController = TextEditingController();
     scrollController = ScrollController();
     socket = IO.io(
@@ -28,12 +34,13 @@ class _ChatPageState extends State<ChatPage> {
         OptionBuilder().setTransports(['websocket']) // for Flutter or Dart VM
             .build());
     socket.onConnect((_) {
-      print('connected');
+      print('Socket connected');
     });
     socket.on('receive_message', (jsonData) {
       Map<String, dynamic> data = json.decode(jsonData);
       this.setState(() => messages.add(data['message']));
       this.setState(() => senders.add(data['sender']));
+      this.setState(() => timestamps.add(data['timestamp']));
       scrollController.animateTo(
         scrollController.position.maxScrollExtent,
         duration: Duration(milliseconds: 600),
@@ -54,7 +61,7 @@ class _ChatPageState extends State<ChatPage> {
           borderRadius: BorderRadius.circular(20.0),
         ),
         child: Text(
-          messages[index],
+          (senders[index] ?? 'Du') + '\n' + _getFormatDate(timestamps[index]) + '\n' + messages[index],
           style: senders[index] == null ? TextStyle(color: Colors.white, fontSize: 15.0) : TextStyle(color: Colors.black, fontSize: 15.0),
         ),
       ),
@@ -97,9 +104,10 @@ class _ChatPageState extends State<ChatPage> {
         if (textController.text.isNotEmpty) {
           //Send the message as JSON data to send_message event
           //Add the message to the list
-          socket.emit('send_message', json.encode({'message': textController.text, 'sender': 'Me'}));
+          socket.emit('send_message', json.encode({'message': textController.text, 'sender': name, 'timestamp': DateTime.now().millisecondsSinceEpoch}));
           this.setState(() => messages.add(textController.text));
           this.setState(() => senders.add(null));
+          this.setState(() => timestamps.add(DateTime.now().millisecondsSinceEpoch));
           textController.text = '';
           //Scrolldown the list to show the latest message
           scrollController.animateTo(
@@ -127,6 +135,21 @@ class _ChatPageState extends State<ChatPage> {
         ],
       ),
     );
+  }
+
+  String _getFormatDate(int timestamp) {
+    DateTime date = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    return date.day.toString() +
+        '.' +
+        date.month.toString() +
+        '.' +
+        date.year.toString() +
+        ' - ' +
+        date.hour.toString() +
+        ':' +
+        date.minute.toString() +
+        ':' +
+        date.second.toString();
   }
 
   @override
