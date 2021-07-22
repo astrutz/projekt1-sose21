@@ -10,17 +10,22 @@ const socketio = require('socket.io')(server);
 
 socketio.on("connection", (userSocket) => {
 
-    console.log('Socket connection established');
+  console.log('Socket connection established');
 
-    // Listen to message event
-    userSocket.on("send_message", (data) => {
+  // Listen to message event
+  userSocket.on("send_message", (data) => {
 
-      history.setHistory(data);
-      
-      console.log('Received message', data);
-      // Send message to all sockets
-      userSocket.broadcast.emit("receive_message", data);
-    });
+    history.setHistory(data);
+    
+    console.log('Received message', data);
+    // Send message to all sockets
+    userSocket.broadcast.emit("receive_message", data);
+  });
+});
+
+app.get('/history', (req, res) => {
+  const messages = history.getHistory();
+  res.send(messages);
 });
 
 server.listen(port, () => {

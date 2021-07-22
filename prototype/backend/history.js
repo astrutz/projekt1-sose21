@@ -1,10 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-async function setHistory(messageObject) {
-    // if history
+function setHistory(messageObject) {
     const directory = fs.readdirSync(__dirname);
-    console.log('DIR', directory);
     let history = { messages: [] };
     if(directory.includes('history.json')) {
         history = JSON.parse(fs.readFileSync(path.join(__dirname, 'history.json')));
@@ -13,8 +11,13 @@ async function setHistory(messageObject) {
     fs.writeFileSync(path.join(__dirname, 'history.json'), JSON.stringify(history));
 }
 
-async function getHistory() {
-    
+function getHistory() {
+    const directory = fs.readdirSync(__dirname);
+    if(directory.includes('history.json')) {
+        return JSON.parse(fs.readFileSync(path.join(__dirname, 'history.json')));
+    } else {
+        return { messages: [] };
+    }
 }
 
 module.exports = {
