@@ -15,9 +15,9 @@ socketio.on("connection", (userSocket) => {
   // Listen to message event
   userSocket.on("send_message", (data) => {
 
-    history.setHistory(data);
+    history.setHistory(JSON.parse(data));
     
-    console.log('Received message', data);
+    console.log('Received message', JSON.parse(data));
     // Send message to all sockets
     userSocket.broadcast.emit("receive_message", data);
   });
