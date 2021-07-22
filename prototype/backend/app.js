@@ -10,7 +10,7 @@ const socketio = require('socket.io')(server);
 
 socketio.on("connection", (userSocket) => {
 
-    console.log('Socket connection established', userSocket)
+    console.log('Socket connection established');
 
     // Listen to message event
     userSocket.on("send_message", (data) => {
