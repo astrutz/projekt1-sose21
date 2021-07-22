@@ -28,6 +28,11 @@ app.get('/history', (req, res) => {
   res.send(messages);
 });
 
+app.delete('/history', (req, res) => {
+  history.deleteHistory();
+  res.sendStatus(200);
+});
+
 server.listen(port, () => {
   console.log(`Server running on port: ${port}`);
 });
