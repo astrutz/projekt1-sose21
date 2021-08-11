@@ -1,12 +1,15 @@
 import 'dart:convert';
-import 'dart:math';
+
+import 'WidgetHelper.dart';
 
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:socket_io_client/socket_io_client.dart';
 
 class ChatPage extends StatefulWidget {
-  ChatPage(String name);
+  final String name;
+
+  ChatPage({Key key, this.name}) : super(key: key);
 
   @override
   _ChatPageState createState() => _ChatPageState();
@@ -17,7 +20,6 @@ class _ChatPageState extends State<ChatPage> {
   List<String> messages;
   List<String> senders;
   List<int> timestamps;
-  String name = 'Anonymer User #' + new Random().nextInt(10000).toString();
   double height, width;
   TextEditingController textController;
   ScrollController scrollController;
@@ -50,106 +52,23 @@ class _ChatPageState extends State<ChatPage> {
     super.initState();
   }
 
-  Widget buildSingleMessage(int index) {
-    return Container(
-      alignment: senders[index] == null ? Alignment.centerLeft : Alignment.centerRight,
-      child: Container(
-        padding: const EdgeInsets.all(20.0),
-        margin: senders[index] == null ? const EdgeInsets.only(bottom: 20.0, left: 20.0) : const EdgeInsets.only(bottom: 20.0, right: 20.0),
-        decoration: BoxDecoration(
-          color: senders[index] == null ? Colors.deepPurple : Colors.grey,
-          borderRadius: BorderRadius.circular(20.0),
-        ),
-        child: Text(
-          (senders[index] ?? 'Du') + '\n' + _getFormatDate(timestamps[index]) + '\n' + messages[index],
-          style: senders[index] == null ? TextStyle(color: Colors.white, fontSize: 15.0) : TextStyle(color: Colors.black, fontSize: 15.0),
-        ),
-      ),
-    );
-  }
-
-  Widget buildMessageList() {
-    return Container(
-      height: height * 0.8,
-      width: width,
-      child: ListView.builder(
-        controller: scrollController,
-        itemCount: messages.length,
-        itemBuilder: (BuildContext context, int index) {
-          return buildSingleMessage(index);
-        },
-      ),
-    );
-  }
-
-  Widget buildChatInput() {
-    return Container(
-      width: width * 0.7,
-      padding: const EdgeInsets.all(2.0),
-      margin: const EdgeInsets.only(left: 40.0),
-      child: TextField(
-        decoration: InputDecoration.collapsed(
-          hintText: 'Send a message...',
-        ),
-        controller: textController,
-      ),
-    );
-  }
-
-  Widget buildSendButton() {
-    return FloatingActionButton(
-      backgroundColor: Colors.deepPurple,
-      onPressed: () {
-        //Check if the textfield has text or not
-        if (textController.text.isNotEmpty) {
-          //Send the message as JSON data to send_message event
-          //Add the message to the list
-          socket.emit('send_message', json.encode({'message': textController.text, 'sender': name, 'timestamp': DateTime.now().millisecondsSinceEpoch}));
-          this.setState(() => messages.add(textController.text));
-          this.setState(() => senders.add(null));
-          this.setState(() => timestamps.add(DateTime.now().millisecondsSinceEpoch));
-          textController.text = '';
-          //Scrolldown the list to show the latest message
-          scrollController.animateTo(
-            scrollController.position.maxScrollExtent,
-            duration: Duration(milliseconds: 600),
-            curve: Curves.ease,
-          );
-        }
-      },
-      child: Icon(
-        Icons.send,
-        size: 30,
-      ),
-    );
-  }
-
-  Widget buildInputArea() {
-    return Container(
-      height: height * 0.1,
-      width: width,
-      child: Row(
-        children: <Widget>[
-          buildChatInput(),
-          buildSendButton(),
-        ],
-      ),
-    );
-  }
-
-  String _getFormatDate(int timestamp) {
-    DateTime date = DateTime.fromMillisecondsSinceEpoch(timestamp);
-    return date.day.toString() +
-        '.' +
-        date.month.toString() +
-        '.' +
-        date.year.toString() +
-        ' - ' +
-        date.hour.toString() +
-        ':' +
-        date.minute.toString() +
-        ':' +
-        date.second.toString();
+  void _sendMessage() {
+    //Check if the textfield has text or not
+    if (textController.text.isNotEmpty) {
+      //Send the message as JSON data to send_message event
+      //Add the message to the list
+      socket.emit('send_message', json.encode({'message': textController.text, 'sender': widget.name, 'timestamp': DateTime.now().millisecondsSinceEpoch}));
+      this.setState(() => messages.add(textController.text));
+      this.setState(() => senders.add(null));
+      this.setState(() => timestamps.add(DateTime.now().millisecondsSinceEpoch));
+      textController.text = '';
+      //Scrolldown the list to show the latest message
+      scrollController.animateTo(
+        scrollController.position.maxScrollExtent,
+        duration: Duration(milliseconds: 600),
+        curve: Curves.ease,
+      );
+    }
   }
 
   @override
@@ -161,11 +80,13 @@ class _ChatPageState extends State<ChatPage> {
         child: Column(
           children: <Widget>[
             SizedBox(height: height * 0.1),
-            buildMessageList(),
-            buildInputArea(),
+            WidgetHelper.buildDateChip(),
+            WidgetHelper.buildMessageList(height, width, scrollController, senders, messages, timestamps),
+            WidgetHelper.buildInputArea(height, width, _sendMessage, textController),
           ],
         ),
       ),
+      backgroundColor: Colors.grey[300],
     );
   }
 }

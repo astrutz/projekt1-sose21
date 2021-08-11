@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:frontend/ChatPage.dart';
 
@@ -15,17 +17,18 @@ class StartPage extends StatelessWidget {
             margin: const EdgeInsets.only(left: 40.0),
             child: TextField(
               decoration: InputDecoration.collapsed(
-                hintText: 'Send a message...',
+                hintText: 'Trage deinen Namen ein',
               ),
               controller: textController,
             ),
           ),
           ElevatedButton(
             onPressed: () => {
+              print(textController.text),
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) {
-                  return ChatPage(textController.text);
+                  return ChatPage(name: (textController.text == '' ? 'Anonymer User #' + new Random().nextInt(10000).toString() : textController.text));
                 }),
               ),
             },
@@ -36,7 +39,7 @@ class StartPage extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) {
-                  return ChatPage(textController.text);
+                  return ChatPage(name: (textController.text == '' ? 'Anonymer User #' + new Random().nextInt(10000).toString() : textController.text));
                 }),
               ),
             },
@@ -47,7 +50,7 @@ class StartPage extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) {
-                  return ChatPage(textController.text);
+                  return ChatPage(name: (textController.text == '' ? 'Anonymer User #' + new Random().nextInt(10000).toString() : textController.text));
                 }),
               ),
             },
