@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'Meal.dart';
 import 'WidgetHelper.dart';
 
 import 'package:flutter/material.dart';
@@ -12,14 +13,15 @@ class ChatPage extends StatefulWidget {
   ChatPage({Key key, this.name}) : super(key: key);
 
   @override
-  _ChatPageState createState() => _ChatPageState();
+  ChatPageState createState() => ChatPageState();
 }
 
-class _ChatPageState extends State<ChatPage> {
+class ChatPageState extends State<ChatPage> {
   IO.Socket socket;
   List<String> messages;
   List<String> senders;
   List<int> timestamps;
+  List<Meal> meals;
   double height, width;
   TextEditingController textController;
   ScrollController scrollController;
@@ -29,12 +31,10 @@ class _ChatPageState extends State<ChatPage> {
     messages = List<String>();
     senders = List<String>();
     timestamps = List<int>();
+    meals = List<Meal>();
     textController = TextEditingController();
     scrollController = ScrollController();
-    socket = IO.io(
-        'https://projekt1-chat.herokuapp.com',
-        OptionBuilder().setTransports(['websocket']) // for Flutter or Dart VM
-            .build());
+    socket = IO.io('https://projekt1-chat.herokuapp.com', OptionBuilder().setTransports(['websocket']).build());
     socket.onConnect((_) {
       print('Socket connected');
     });
@@ -60,6 +60,7 @@ class _ChatPageState extends State<ChatPage> {
       socket.emit('send_message', json.encode({'message': textController.text, 'sender': widget.name, 'timestamp': DateTime.now().millisecondsSinceEpoch}));
       this.setState(() => messages.add(textController.text));
       this.setState(() => senders.add(null));
+      this.setState(() => meals.add(null));
       this.setState(() => timestamps.add(DateTime.now().millisecondsSinceEpoch));
       textController.text = '';
       //Scrolldown the list to show the latest message
@@ -69,6 +70,15 @@ class _ChatPageState extends State<ChatPage> {
         curve: Curves.ease,
       );
     }
+  }
+
+  void sendMeal(Meal meal) {
+    socket.emit(
+        'send_message', json.encode({'mealID': meal.getID, 'message': null, 'sender': widget.name, 'timestamp': DateTime.now().millisecondsSinceEpoch}));
+    this.setState(() => messages.add(null));
+    this.setState(() => meals.add(meal));
+    this.setState(() => senders.add(null));
+    this.setState(() => timestamps.add(DateTime.now().millisecondsSinceEpoch));
   }
 
   @override
@@ -81,8 +91,8 @@ class _ChatPageState extends State<ChatPage> {
           children: <Widget>[
             SizedBox(height: height * 0.1),
             WidgetHelper.buildDateChip(),
-            WidgetHelper.buildMessageList(height, width, scrollController, senders, messages, timestamps),
-            WidgetHelper.buildInputArea(height, width, _sendMessage, textController),
+            WidgetHelper.buildMessageList(height, width, scrollController, senders, messages, timestamps, meals),
+            WidgetHelper.buildInputArea(sendMeal, context, height, width, _sendMessage, textController),
           ],
         ),
       ),
