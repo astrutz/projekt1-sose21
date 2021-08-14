@@ -158,7 +158,7 @@ class WidgetHelper {
           Column(children: [
             Container(
               margin: EdgeInsets.only(bottom: 5),
-              child: Text('Ich schlage vor: ${meal.getName}'),
+              child: Text('Wie wäre es mit ${meal.getName}?'),
             ),
             Image(
               image: AssetImage('images/${meal.getName}.jpg'),
