@@ -11,4 +11,12 @@ class Meals {
     meals.add(Meal('Bolognese', 35, 5));
     return meals;
   }
+
+  static Meal getMealByID(int id) {
+    if (id == null) {
+      return null;
+    }
+    List<Meal> meals = getMeals();
+    return meals.firstWhere((meal) => meal.getID == id);
+  }
 }

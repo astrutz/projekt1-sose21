@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'Meal.dart';
+import 'Meals.dart';
 import 'WidgetHelper.dart';
 
 import 'package:flutter/material.dart';
@@ -45,6 +46,8 @@ class ChatPageState extends State<ChatPage> {
       this.setState(() => messages.add(data['message']));
       this.setState(() => senders.add(data['sender']));
       this.setState(() => timestamps.add(data['timestamp']));
+      this.setState(() => meals.add(Meals.getMealByID(data['mealID'])));
+      this.setState(() => votes.add(Meals.getMealByID(data['voteID'])));
       scrollController.animateTo(
         scrollController.position.maxScrollExtent,
         duration: Duration(milliseconds: 600),
@@ -55,10 +58,7 @@ class ChatPageState extends State<ChatPage> {
   }
 
   void _sendMessage() {
-    //Check if the textfield has text or not
     if (textController.text.isNotEmpty) {
-      //Send the message as JSON data to send_message event
-      //Add the message to the list
       socket.emit('send_message', json.encode({'message': textController.text, 'sender': widget.name, 'timestamp': DateTime.now().millisecondsSinceEpoch}));
       this.setState(() => messages.add(textController.text));
       this.setState(() => senders.add(null));
@@ -66,7 +66,6 @@ class ChatPageState extends State<ChatPage> {
       this.setState(() => votes.add(null));
       this.setState(() => timestamps.add(DateTime.now().millisecondsSinceEpoch));
       textController.text = '';
-      //Scrolldown the list to show the latest message
       scrollController.animateTo(
         scrollController.position.maxScrollExtent,
         duration: Duration(milliseconds: 600),
@@ -77,7 +76,7 @@ class ChatPageState extends State<ChatPage> {
 
   void _sendMeal(Meal meal) {
     socket.emit('send_message',
-        json.encode({'mealID': meal.getID, 'vote': null, 'message': null, 'sender': widget.name, 'timestamp': DateTime.now().millisecondsSinceEpoch}));
+        json.encode({'mealID': meal.getID, 'voteID': null, 'message': null, 'sender': widget.name, 'timestamp': DateTime.now().millisecondsSinceEpoch}));
     this.setState(() => messages.add(null));
     this.setState(() => meals.add(meal));
     this.setState(() => votes.add(null));
@@ -87,7 +86,7 @@ class ChatPageState extends State<ChatPage> {
 
   void _sendVote(Meal meal) {
     socket.emit('send_message',
-        json.encode({'mealID': null, 'vote': meal.getID, 'message': null, 'sender': widget.name, 'timestamp': DateTime.now().millisecondsSinceEpoch}));
+        json.encode({'mealID': null, 'voteID': meal.getID, 'message': null, 'sender': widget.name, 'timestamp': DateTime.now().millisecondsSinceEpoch}));
     this.setState(() => messages.add(null));
     this.setState(() => meals.add(null));
     this.setState(() => votes.add(meal));
