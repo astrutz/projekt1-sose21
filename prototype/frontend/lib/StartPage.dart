@@ -27,7 +27,6 @@ class StartPage extends StatelessWidget {
             margin: const EdgeInsets.all(10),
             child: ElevatedButton(
               onPressed: () => {
-                print(textController.text),
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) {

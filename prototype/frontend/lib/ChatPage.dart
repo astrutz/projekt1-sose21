@@ -22,6 +22,7 @@ class ChatPageState extends State<ChatPage> {
   List<String> senders;
   List<int> timestamps;
   List<Meal> meals;
+  List<Meal> votes;
   double height, width;
   TextEditingController textController;
   ScrollController scrollController;
@@ -32,6 +33,7 @@ class ChatPageState extends State<ChatPage> {
     senders = List<String>();
     timestamps = List<int>();
     meals = List<Meal>();
+    votes = List<Meal>();
     textController = TextEditingController();
     scrollController = ScrollController();
     socket = IO.io('https://projekt1-chat.herokuapp.com', OptionBuilder().setTransports(['websocket']).build());
@@ -61,6 +63,7 @@ class ChatPageState extends State<ChatPage> {
       this.setState(() => messages.add(textController.text));
       this.setState(() => senders.add(null));
       this.setState(() => meals.add(null));
+      this.setState(() => votes.add(null));
       this.setState(() => timestamps.add(DateTime.now().millisecondsSinceEpoch));
       textController.text = '';
       //Scrolldown the list to show the latest message
@@ -72,12 +75,23 @@ class ChatPageState extends State<ChatPage> {
     }
   }
 
-  void sendMeal(Meal meal) {
-    socket.emit(
-        'send_message', json.encode({'mealID': meal.getID, 'message': null, 'sender': widget.name, 'timestamp': DateTime.now().millisecondsSinceEpoch}));
+  void _sendMeal(Meal meal) {
+    socket.emit('send_message',
+        json.encode({'mealID': meal.getID, 'vote': null, 'message': null, 'sender': widget.name, 'timestamp': DateTime.now().millisecondsSinceEpoch}));
     this.setState(() => messages.add(null));
     this.setState(() => meals.add(meal));
+    this.setState(() => votes.add(null));
     this.setState(() => senders.add(null));
+    this.setState(() => timestamps.add(DateTime.now().millisecondsSinceEpoch));
+  }
+
+  void _sendVote(Meal meal) {
+    socket.emit('send_message',
+        json.encode({'mealID': null, 'vote': meal.getID, 'message': null, 'sender': widget.name, 'timestamp': DateTime.now().millisecondsSinceEpoch}));
+    this.setState(() => messages.add(null));
+    this.setState(() => meals.add(null));
+    this.setState(() => votes.add(meal));
+    this.setState(() => senders.add(widget.name));
     this.setState(() => timestamps.add(DateTime.now().millisecondsSinceEpoch));
   }
 
@@ -91,8 +105,8 @@ class ChatPageState extends State<ChatPage> {
           children: <Widget>[
             SizedBox(height: height * 0.1),
             WidgetHelper.buildDateChip(),
-            WidgetHelper.buildMessageList(height, width, scrollController, senders, messages, timestamps, meals),
-            WidgetHelper.buildInputArea(sendMeal, context, height, width, _sendMessage, textController),
+            WidgetHelper.buildMessageList(height, width, scrollController, senders, messages, timestamps, meals, votes, _sendVote),
+            WidgetHelper.buildInputArea(_sendMeal, context, height, width, _sendMessage, textController),
           ],
         ),
       ),

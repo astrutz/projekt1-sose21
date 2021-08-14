@@ -116,8 +116,8 @@ class WidgetHelper {
     );
   }
 
-  static Widget buildMessageList(
-      double height, double width, ScrollController scrollController, List<String> senders, List<String> messages, List<int> timestamps, List<Meal> meals) {
+  static Widget buildMessageList(double height, double width, ScrollController scrollController, List<String> senders, List<String> messages,
+      List<int> timestamps, List<Meal> meals, List<Meal> votes, Function sendVote) {
     return Container(
       height: height * 0.8,
       width: width,
@@ -125,21 +125,26 @@ class WidgetHelper {
         controller: scrollController,
         itemCount: messages.length,
         itemBuilder: (BuildContext context, int index) {
-          return buildSingleMessage(index, senders, messages, timestamps, meals);
+          return buildSingleMessage(index, senders, messages, timestamps, meals, votes, sendVote);
         },
       ),
     );
   }
 
-  static Widget buildSingleMessage(int index, List<String> senders, List<String> messages, List<int> timestamps, List<Meal> meals) {
-    if (messages[index] == null) {
-      return buildMealMessage(senders[index], meals[index], timestamps[index]);
-    } else {
+  static Widget buildSingleMessage(
+      int index, List<String> senders, List<String> messages, List<int> timestamps, List<Meal> meals, List<Meal> votes, Function sendVote) {
+    if (messages[index] == null && votes[index] == null) {
+      return buildMealMessage(senders[index], meals[index], timestamps[index], sendVote);
+    } else if (meals[index] == null && votes[index] == null) {
       return buildTextMessage(senders[index], messages[index], timestamps[index]);
+    } else if (meals[index] == null && messages[index] == null) {
+      return buildVoteMessage(senders[index], votes[index]);
+    } else {
+      throw Error();
     }
   }
 
-  static Widget buildMealMessage(String sender, Meal meal, int timestamp) {
+  static Widget buildMealMessage(String sender, Meal meal, int timestamp, Function sendVote) {
     return Bubble(
       margin: BubbleEdges.only(top: 10, left: 5, right: 5),
       alignment: sender == null ? Alignment.topRight : Alignment.topLeft,
@@ -155,15 +160,27 @@ class WidgetHelper {
                     style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
                   ),
                 ),
-          Column(children: [
-            Container(
-              margin: EdgeInsets.only(bottom: 5),
-              child: Text('Wie wäre es mit ${meal.getName}?'),
-            ),
-            Image(
-              image: AssetImage('images/${meal.getName}.jpg'),
-            )
-          ]),
+          Column(
+            children: [
+              Container(
+                margin: EdgeInsets.only(bottom: 5),
+                child: Text('Wie wäre es mit ${meal.getName}?'),
+              ),
+              Image(
+                image: AssetImage('images/${meal.getName}.jpg'),
+              ),
+              Container(
+                margin: EdgeInsets.only(top: 5),
+                child: ElevatedButton(
+                  style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Color.fromRGBO(77, 182, 172, 1.0))),
+                  onPressed: () => {
+                    sendVote(meal),
+                  },
+                  child: Text('Abstimmen'),
+                ),
+              )
+            ],
+          ),
           Container(
             margin: EdgeInsets.only(top: 5),
             child: Text(
@@ -204,6 +221,14 @@ class WidgetHelper {
         ],
         crossAxisAlignment: CrossAxisAlignment.start,
       ),
+    );
+  }
+
+  static Widget buildVoteMessage(String sender, Meal vote) {
+    return Bubble(
+      alignment: Alignment.center,
+      color: Color.fromRGBO(227, 237, 212, 1.0),
+      child: Text('$sender stimmt ab für ${vote.getName}', textAlign: TextAlign.center, style: TextStyle(fontSize: 11.0)),
     );
   }
 
