@@ -1,5 +1,6 @@
 const express = require('express');
 const history = require('./history');
+const voting = require('./voting');
 
 const app = express();
 const server = require('http').createServer(app);
@@ -15,12 +16,26 @@ socketio.on("connection", (userSocket) => {
   // Listen to message event
   userSocket.on("send_message", (data) => {
 
-    history.setHistory(JSON.parse(data));
+    const parsedData = JSON.parse(data);
+
+    if(parsedData.endVote) {
+      const voteWinner = voting.endVoting();
+      // TODO: Send winner to frontend
+    } else {
+      voting.addVote(parsedData.voteID);
+    }
+
+    history.setHistory(parsedData);
     
-    console.log('Received message', JSON.parse(data));
+    console.log('Received message', parsedData);
     // Send message to all sockets
     userSocket.broadcast.emit("receive_message", data);
   });
+});
+
+app.get('/voting', (req, res) => {
+  const voting = voting.getVoting();
+  res.send(voting);
 });
 
 app.get('/history', (req, res) => {
