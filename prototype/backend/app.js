@@ -22,7 +22,7 @@ socketio.on("connection", (userSocket) => {
       const voteWinner = voting.endVoting();
       console.log('Vote won by',voteWinner);
       userSocket.broadcast.emit("receive_message", JSON.stringify({finalVote: voteWinner}));
-    } else if(parsedData.voteID) {
+    } else if (parsedData.voteID) {
       voting.addVote(parsedData.voteID);
     }
 

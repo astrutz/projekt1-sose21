@@ -36,7 +36,7 @@ function endVoting() {
             }
         });
         fs.writeFileSync(path.join(__dirname, 'voting.json'), JSON.stringify({ votes: {} }));
-        return biggestKey;
+        return parseInt(biggestKey.toString());
     } else {
       return -1;
     }
