@@ -16,6 +16,9 @@ class Meals {
     if (id == null) {
       return null;
     }
+    if (id == -1) {
+      return Meal('Unentschieden', 0, 6);
+    }
     List<Meal> meals = getMeals();
     return meals.firstWhere((meal) => meal.getID == id);
   }
