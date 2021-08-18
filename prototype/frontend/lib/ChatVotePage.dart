@@ -56,6 +56,10 @@ class ChatVotePageState extends State<ChatVotePage> {
         );
       }
     });
+    socket.on('receive_voting', (voteWinner) {
+      print('voteWinner');
+      print(voteWinner);
+    });
     super.initState();
   }
 
@@ -126,7 +130,7 @@ class ChatVotePageState extends State<ChatVotePage> {
                   icon: const Icon(Icons.check_circle_outline),
                   tooltip: 'Abstimmung beenden',
                   onPressed: () {
-                    print('tbd'); // TODO
+                    socket.emit('send_message', json.encode({'endVote': true}));
                   },
                 )
               ]
