@@ -8,6 +8,7 @@ import 'Meals.dart';
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:socket_io_client/socket_io_client.dart';
+import 'package:http/http.dart' as http;
 
 class ChatVotePage extends StatefulWidget {
   final String name;
@@ -135,6 +136,25 @@ class ChatVotePageState extends State<ChatVotePage> {
     this.setState(() => alreadyVoted = true);
   }
 
+  void _getLastVote() async {
+    print('lastvote called');
+    http.Response response = await http.get(Uri.parse('https://projekt1-chat.herokuapp.com/lastVote'));
+    if (response.statusCode == 200) {
+      dynamic json = jsonDecode(response.body);
+      print(json['vote']);
+      this.setState(() => messages.add(null));
+      this.setState(() => meals.add(null));
+      this.setState(() => votes.add(null));
+      this.setState(() => finalVotes.add(Meals.getMealByID(json['vote'])));
+      this.setState(() => senders.add(widget.name));
+      this.setState(() => timestamps.add(DateTime.now().millisecondsSinceEpoch));
+      this.setState(() => alreadyVoted = false);
+    } else {
+      print(response.statusCode == 200);
+      throw Exception('Failed to load final vote');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     height = MediaQuery.of(context).size.height;
@@ -150,6 +170,7 @@ class ChatVotePageState extends State<ChatVotePage> {
                   tooltip: 'Abstimmung beenden',
                   onPressed: () {
                     socket.emit('send_message', json.encode({'endVote': true}));
+                    _getLastVote();
                   },
                 )
               ]
