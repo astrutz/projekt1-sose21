@@ -25,7 +25,20 @@ function getVoting() {
 }
 
 function endVoting() {
-    // TODO
+    const directory = fs.readdirSync(__dirname);
+    if(directory.includes('voting.json')) {
+        const voteData = JSON.parse(fs.readFileSync(path.join(__dirname, 'voting.json')));
+        let biggestKey = -1;
+        let biggestValue = 0;
+        Object.keys(voteData.votes).forEach((key) => {
+            if(voteData.votes[key] > biggestValue) {
+                biggestKey = key;
+            }
+        });
+        return biggestKey;
+    } else {
+      return -1;
+    }
 }
 
 module.exports = {

@@ -20,7 +20,7 @@ socketio.on("connection", (userSocket) => {
 
     if(parsedData.endVote) {
       const voteWinner = voting.endVoting();
-      // TODO: Send winner to frontend
+      userSocket.broadcast.emit("receive_voting", voteWinner);
     } else if(parsedData.voteID) {
       voting.addVote(parsedData.voteID);
     }
