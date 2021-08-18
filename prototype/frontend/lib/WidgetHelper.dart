@@ -8,6 +8,7 @@ class WidgetHelper {
   static Widget buildDateChip() {
     return Bubble(
       alignment: Alignment.center,
+      margin: BubbleEdges.only(top: 10),
       color: Color.fromRGBO(227, 237, 212, 1.0),
       child: Text('heute', textAlign: TextAlign.center, style: TextStyle(fontSize: 11.0)),
     );
@@ -146,7 +147,7 @@ class WidgetHelper {
 
   static Widget buildMealMessage(String sender, Meal meal, int timestamp, Function sendVote) {
     return Bubble(
-      margin: BubbleEdges.only(top: 10, left: 5, right: 5),
+      margin: BubbleEdges.only(bottom: 10, left: 5, right: 5),
       alignment: sender == null ? Alignment.topRight : Alignment.topLeft,
       nip: sender == null ? BubbleNip.rightTop : BubbleNip.leftTop,
       child: Column(
@@ -196,7 +197,7 @@ class WidgetHelper {
 
   static Widget buildTextMessage(String sender, String message, int timestamp) {
     return Bubble(
-      margin: BubbleEdges.only(top: 10, left: 5, right: 5),
+      margin: BubbleEdges.only(bottom: 10, left: 5, right: 5),
       alignment: sender == null ? Alignment.topRight : Alignment.topLeft,
       nip: sender == null ? BubbleNip.rightTop : BubbleNip.leftTop,
       child: Column(
@@ -227,6 +228,7 @@ class WidgetHelper {
   static Widget buildVoteMessage(String sender, Meal vote) {
     return Bubble(
       alignment: Alignment.center,
+      margin: BubbleEdges.only(bottom: 10),
       color: Color.fromRGBO(227, 237, 212, 1.0),
       child: Text('$sender stimmt ab für ${vote.getName}', textAlign: TextAlign.center, style: TextStyle(fontSize: 11.0)),
     );

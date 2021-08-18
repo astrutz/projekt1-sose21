@@ -48,11 +48,13 @@ class ChatPageState extends State<ChatPage> {
       this.setState(() => timestamps.add(data['timestamp']));
       this.setState(() => meals.add(Meals.getMealByID(data['mealID'])));
       this.setState(() => votes.add(Meals.getMealByID(data['voteID'])));
-      scrollController.animateTo(
-        scrollController.position.maxScrollExtent,
-        duration: Duration(milliseconds: 600),
-        curve: Curves.ease,
-      );
+      if (scrollController.position.maxScrollExtent > 0) {
+        scrollController.animateTo(
+          scrollController.position.maxScrollExtent,
+          duration: Duration(milliseconds: 500),
+          curve: Curves.ease,
+        );
+      }
     });
     super.initState();
   }
@@ -66,11 +68,13 @@ class ChatPageState extends State<ChatPage> {
       this.setState(() => votes.add(null));
       this.setState(() => timestamps.add(DateTime.now().millisecondsSinceEpoch));
       textController.text = '';
-      scrollController.animateTo(
-        scrollController.position.maxScrollExtent,
-        duration: Duration(milliseconds: 600),
-        curve: Curves.ease,
-      );
+      if (scrollController.position.maxScrollExtent > 0) {
+        scrollController.animateTo(
+          scrollController.position.maxScrollExtent,
+          duration: Duration(milliseconds: 500),
+          curve: Curves.ease,
+        );
+      }
     }
   }
 
@@ -82,6 +86,13 @@ class ChatPageState extends State<ChatPage> {
     this.setState(() => votes.add(null));
     this.setState(() => senders.add(null));
     this.setState(() => timestamps.add(DateTime.now().millisecondsSinceEpoch));
+    if (scrollController.position.maxScrollExtent > 0) {
+      scrollController.animateTo(
+        scrollController.position.maxScrollExtent,
+        duration: Duration(milliseconds: 500),
+        curve: Curves.ease,
+      );
+    }
   }
 
   void _sendVote(Meal meal) {
@@ -92,6 +103,13 @@ class ChatPageState extends State<ChatPage> {
     this.setState(() => votes.add(meal));
     this.setState(() => senders.add(widget.name));
     this.setState(() => timestamps.add(DateTime.now().millisecondsSinceEpoch));
+    if (scrollController.position.maxScrollExtent > 0) {
+      scrollController.animateTo(
+        scrollController.position.maxScrollExtent,
+        duration: Duration(milliseconds: 500),
+        curve: Curves.ease,
+      );
+    }
   }
 
   @override
@@ -99,10 +117,24 @@ class ChatPageState extends State<ChatPage> {
     height = MediaQuery.of(context).size.height;
     width = MediaQuery.of(context).size.width;
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color.fromRGBO(77, 182, 172, 1.0),
+        title: Text('WG-Gruppe'),
+        actions: votes.any((element) => element != null)
+            ? <Widget>[
+                IconButton(
+                  icon: const Icon(Icons.check_circle_outline),
+                  tooltip: 'Abstimmung beenden',
+                  onPressed: () {
+                    print('tbd'); // TODO
+                  },
+                )
+              ]
+            : <Widget>[],
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
-            SizedBox(height: height * 0.1),
             WidgetHelper.buildDateChip(),
             WidgetHelper.buildMessageList(height, width, scrollController, senders, messages, timestamps, meals, votes, _sendVote),
             WidgetHelper.buildInputArea(_sendMeal, context, height, width, _sendMessage, textController),

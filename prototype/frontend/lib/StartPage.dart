@@ -40,28 +40,14 @@ class StartPage extends StatelessWidget {
           Container(
             margin: const EdgeInsets.all(10),
             child: ElevatedButton(
-              onPressed: () => {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) {
-                    return ChatPage(name: (textController.text == '' ? 'Anonymer User #' + new Random().nextInt(10000).toString() : textController.text));
-                  }),
-                ),
-              },
+              onPressed: null,
               child: Text('PoC2 - Chat mit Bot'),
             ),
           ),
           Container(
             margin: const EdgeInsets.all(10),
             child: ElevatedButton(
-              onPressed: () => {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) {
-                    return ChatPage(name: (textController.text == '' ? 'Anonymer User #' + new Random().nextInt(10000).toString() : textController.text));
-                  }),
-                ),
-              },
+              onPressed: null,
               child: Text('PoC3 - Chat mit Bot und Challenges'),
             ),
           ),
