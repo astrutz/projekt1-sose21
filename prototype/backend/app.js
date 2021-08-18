@@ -6,6 +6,8 @@ const app = express();
 const server = require('http').createServer(app);
 const port = process.env.PORT || 3000;
 
+let lastVote = -1;
+
 //Socket Logic
 const socketio = require('socket.io')(server);
 
@@ -20,6 +22,7 @@ socketio.on("connection", (userSocket) => {
 
     if(parsedData.endVote) {
       const voteWinner = voting.endVoting();
+      lastVote = voteWinner;
       console.log('Vote won by',voteWinner);
       userSocket.broadcast.emit("receive_message", JSON.stringify({finalVote: voteWinner}));
     } else if (parsedData.voteID) {
@@ -37,6 +40,10 @@ socketio.on("connection", (userSocket) => {
 app.get('/voting', (req, res) => {
   const currentVotes = voting.getVoting();
   res.send(currentVotes);
+});
+
+app.get('/lastVote', (req, res) => {
+  res.send(JSON.stringify({vote: lastVote}));
 });
 
 app.get('/history', (req, res) => {
