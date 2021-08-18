@@ -8,16 +8,16 @@ import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:socket_io_client/socket_io_client.dart';
 
-class ChatPage extends StatefulWidget {
+class ChatVotePage extends StatefulWidget {
   final String name;
 
-  ChatPage({Key key, this.name}) : super(key: key);
+  ChatVotePage({Key key, this.name}) : super(key: key);
 
   @override
-  ChatPageState createState() => ChatPageState();
+  ChatVotePageState createState() => ChatVotePageState();
 }
 
-class ChatPageState extends State<ChatPage> {
+class ChatVotePageState extends State<ChatVotePage> {
   IO.Socket socket;
   List<String> messages;
   List<String> senders;
@@ -47,7 +47,7 @@ class ChatPageState extends State<ChatPage> {
       this.setState(() => senders.add(data['sender']));
       this.setState(() => timestamps.add(data['timestamp']));
       this.setState(() => meals.add(Meals.getMealByID(data['mealID'])));
-      this.setState(() => votes.add(null));
+      this.setState(() => votes.add(Meals.getMealByID(data['voteID'])));
       if (scrollController.position.maxScrollExtent > 0) {
         scrollController.animateTo(
           scrollController.position.maxScrollExtent,
@@ -95,6 +95,23 @@ class ChatPageState extends State<ChatPage> {
     }
   }
 
+  void _sendVote(Meal meal) {
+    socket.emit('send_message',
+        json.encode({'mealID': null, 'voteID': meal.getID, 'message': null, 'sender': widget.name, 'timestamp': DateTime.now().millisecondsSinceEpoch}));
+    this.setState(() => messages.add(null));
+    this.setState(() => meals.add(null));
+    this.setState(() => votes.add(meal));
+    this.setState(() => senders.add(widget.name));
+    this.setState(() => timestamps.add(DateTime.now().millisecondsSinceEpoch));
+    if (scrollController.position.maxScrollExtent > 0) {
+      scrollController.animateTo(
+        scrollController.position.maxScrollExtent,
+        duration: Duration(milliseconds: 500),
+        curve: Curves.ease,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     height = MediaQuery.of(context).size.height;
@@ -103,12 +120,23 @@ class ChatPageState extends State<ChatPage> {
       appBar: AppBar(
         backgroundColor: Color.fromRGBO(77, 182, 172, 1.0),
         title: Text('WG-Gruppe'),
+        actions: votes.any((element) => element != null)
+            ? <Widget>[
+                IconButton(
+                  icon: const Icon(Icons.check_circle_outline),
+                  tooltip: 'Abstimmung beenden',
+                  onPressed: () {
+                    print('tbd'); // TODO
+                  },
+                )
+              ]
+            : <Widget>[],
       ),
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
             WidgetHelper.buildDateChip(),
-            WidgetHelper.buildMessageList(height, width, scrollController, senders, messages, timestamps, meals, votes, null),
+            WidgetHelper.buildMessageList(height, width, scrollController, senders, messages, timestamps, meals, votes, _sendVote),
             WidgetHelper.buildInputArea(_sendMeal, context, height, width, _sendMessage, textController),
           ],
         ),

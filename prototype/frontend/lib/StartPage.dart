@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:frontend/ChatPage.dart';
+import 'package:frontend/ChatVotePage.dart';
 
 class StartPage extends StatelessWidget {
   TextEditingController textController;
@@ -40,8 +41,15 @@ class StartPage extends StatelessWidget {
           Container(
             margin: const EdgeInsets.all(10),
             child: ElevatedButton(
-              onPressed: null,
-              child: Text('PoC2 - Chat mit Bot'),
+              onPressed: () => {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) {
+                    return ChatVotePage(name: (textController.text == '' ? 'Anonymer User #' + new Random().nextInt(10000).toString() : textController.text));
+                  }),
+                ),
+              },
+              child: Text('PoC2 - Chat mit Voting'),
             ),
           ),
           Container(

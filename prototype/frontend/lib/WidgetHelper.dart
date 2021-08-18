@@ -170,16 +170,19 @@ class WidgetHelper {
               Image(
                 image: AssetImage('images/${meal.getName}.jpg'),
               ),
-              Container(
-                margin: EdgeInsets.only(top: 5),
-                child: ElevatedButton(
-                  style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Color.fromRGBO(77, 182, 172, 1.0))),
-                  onPressed: () => {
-                    sendVote(meal),
-                  },
-                  child: Text('Abstimmen'),
-                ),
-              )
+              if (sendVote != null)
+                Container(
+                  margin: EdgeInsets.only(top: 5),
+                  child: ElevatedButton(
+                    style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Color.fromRGBO(77, 182, 172, 1.0))),
+                    onPressed: sendVote == null
+                        ? null
+                        : () => {
+                              sendVote(meal),
+                            },
+                    child: Text('Abstimmen'),
+                  ),
+                )
             ],
           ),
           Container(
