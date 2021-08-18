@@ -34,8 +34,8 @@ socketio.on("connection", (userSocket) => {
 });
 
 app.get('/voting', (req, res) => {
-  const voting = voting.getVoting();
-  res.send(voting);
+  const currentVotes = voting.getVoting();
+  res.send(currentVotes);
 });
 
 app.get('/history', (req, res) => {
