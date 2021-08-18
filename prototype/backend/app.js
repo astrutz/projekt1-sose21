@@ -43,6 +43,7 @@ app.get('/voting', (req, res) => {
 });
 
 app.get('/lastVote', (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
   res.send(JSON.stringify({vote: lastVote}));
 });
 
